@@ -6,15 +6,11 @@ services:
     container_name: discord-userchecker
     working_dir: /app
     command:
-      - uv
-      - run
-      - --no-sync
-      - uvicorn
-      - main:app
-      - --host
-      - 0.0.0.0
-      - --port
-      - "8765"
+      - bash
+      - -lc
+      - >
+        uv sync --frozen &&
+        uv run uvicorn main:app --host 0.0.0.0 --port 8765
     env_file:
       - .env
     environment:

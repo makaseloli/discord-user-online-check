@@ -1,7 +1,7 @@
 import asyncio
 import os
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Optional, Tuple
 
 import discord
 from discord.utils import MISSING
@@ -98,23 +98,28 @@ async def get_member(user_id: int) -> Optional[discord.Member]:
     return None
 
 
-async def _resolve_status(user_id: int) -> Optional[discord.Status]:
+async def _resolve_status(user_id: int) -> Tuple[Optional[discord.Status], bool]:
     member = await get_member(user_id)
-    if not member or member.status is None:
-        return None
-    if member.status == discord.Status.offline:
-        return None
-    return member.status
+    if member is None:
+        return None, False
+    if member.status is None or member.status == discord.Status.offline:
+        return None, True
+    return member.status, True
 
 
 @app.post("/check-status")
 async def check_status(payload: UserQuery):
-    status_value = await _resolve_status(payload.user_id)
+    status_value, found = await _resolve_status(payload.user_id)
+    if not found:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User not found",
+        )
     if status_value:
         return {"status": status_value.name}
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail="User offline or not found",
+        detail="User offline",
     )
 
 
@@ -128,10 +133,15 @@ async def check_status_from_path(user_id: str):
             detail="Invalid user ID",
         ) from exc
 
-    status_value = await _resolve_status(snowflake)
+    status_value, found = await _resolve_status(snowflake)
+    if not found:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User not found",
+        )
     if status_value:
         return {"status": status_value.name}
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail="User offline or not found",
+        detail="User offline",
     )
