@@ -3,9 +3,8 @@
 ## 使い方
 ```sh
 git clone https://github.com/makaseloli/discord-user-online-check.git
-uv sync
-uv run uvicorn main:app
-curl http://localhost:8000/<Snowflake>
+docker compose up
+curl http://localhost:8765/<Snowflake>
 ```
 
 ## 機能

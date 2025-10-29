@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  app:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm
+    container_name: discord-userchecker
+    working_dir: /app
+    command:
+      - uv
+      - run
+      - --no-sync
+      - uvicorn
+      - main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8765"
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app
+      UV_LINK_MODE: copy
+    volumes:
+      - ./:/app
+      - uv-cache:/root/.cache/uv
+    ports:
+      - "8765:8765"
+    restart: unless-stopped
+
+volumes:
+  uv-cache:
