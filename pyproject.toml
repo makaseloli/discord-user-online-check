@@ -1,0 +1,12 @@
+[project]
+name = "discord-userchecker"
+version = "1.0.0"
+description = "A FastAPI application to check Discord user statuses."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "discord-py>=2.6.4",
+    "fastapi>=0.120.1",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.38.0",
+]
